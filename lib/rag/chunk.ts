@@ -18,7 +18,7 @@ export interface ChunkOptions {
 
 const DEFAULT_MAX_WORDS = 350;
 
-function parseFrontmatter(markdown: string): {
+export function parseFrontmatter(markdown: string): {
   metadata: KnowledgeMetadata;
   body: string;
 } {
