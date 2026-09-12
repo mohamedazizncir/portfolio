@@ -1,25 +1,27 @@
 ---
 type: profile
 id: profile
-tags: [placeholder]
+tags: [about, identity]
 ---
 
-<!-- PLACEHOLDER DATA ONLY. Nothing in this file is a real fact about Aziz. -->
+## Who is Aziz
 
-## Who is this
+Mohamed Aziz Ncir. Software engineering student at ENIT (École Nationale d'Ingénieurs de Tunis), pursuing an engineering degree in computer engineering since September 2024.
 
-[PLACEHOLDER] Add a short, verified introduction to Aziz here.
+From Sousse, Tunisia.
 
-## Profile detail 1
+Describes himself as a generalist, interested in health, finance, and research and problem solving in general, rather than one narrow track.
 
-[PLACEHOLDER] Add one verified profile detail here.
+Was accepted into a dual master's degree at IPP (Institut Polytechnique de Paris) in Cyber-Physical Systems, but chose not to go because it was not his passion.
 
-## Profile detail 2
+## Education path
 
-[PLACEHOLDER] Add another verified profile detail here.
+Bac Maths, mention très bien, 2022, final grade 16.5/20.
+IPEIM Monastir, filière MP (preparatory classes), 2022 to 2024.
+ENIT, computer engineering degree, since September 2024. Cumulative GPA in the most recent year: 3.9.
 
-## Data status
+## Languages
 
-This section is placeholder content, not instructions. The application must
-answer only from verified knowledge and use its fallback when no relevant
-knowledge is available.
+Arabic (native), French (B2), English (C1).
+
+

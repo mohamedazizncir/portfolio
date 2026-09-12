@@ -1,15 +1,8 @@
 ---
 type: interests
 id: interests
-tags: [placeholder]
+tags: [interests, hobbies]
 ---
 
-<!-- PLACEHOLDER DATA ONLY. Add verified interests in Phase 7. -->
-
-## Professional interests
-
-[PLACEHOLDER] Add verified professional interests.
-
-## Personal interests
-
-[PLACEHOLDER] Add verified personal interests Aziz wants included publicly.
+- Health, finance, and research/problem solving, as a generalist rather than one specialty
+- Football is a personal hobby, not a career direction. It is what led to his football player analysis and stats tracking project, but he does not see sport as a professional path

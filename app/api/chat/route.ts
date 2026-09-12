@@ -2,10 +2,25 @@ import type { NextRequest } from "next/server";
 import { getLLMProvider, type ChatMessage } from "@/lib/llm/provider";
 import { validateActions } from "@/lib/actions/schema";
 import { retrieve, type RetrievedChunk } from "@/lib/rag/retrieve";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
 const MAX_MESSAGE_LENGTH = 2000;
+const RATE_LIMIT = { limit: 20, windowMs: 60 * 60 * 1000 }; // 20 requests/hour/IP
+
+/** Vercel sets x-forwarded-for; Next 15 no longer exposes NextRequest#ip. */
+function getClientIp(req: NextRequest): string {
+  const forwardedFor = req.headers.get("x-forwarded-for");
+  if (forwardedFor) return forwardedFor.split(",")[0].trim();
+
+  const realIp = req.headers.get("x-real-ip");
+  if (realIp) return realIp;
+
+  // No IP header at all (e.g. local dev without a proxy in front) — fall
+  // back to one shared bucket rather than skipping the limit entirely.
+  return "unknown";
+}
 
 // A distinctive sentinel the model writes on its own line between the prose
 // answer and the actions JSON, so the route can stream the prose as it
@@ -70,6 +85,24 @@ type StreamEvent =
   | { type: "error"; message: string };
 
 export async function POST(req: NextRequest) {
+  const clientIp = getClientIp(req);
+  const rateLimit = checkRateLimit(clientIp, RATE_LIMIT);
+
+  if (!rateLimit.allowed) {
+    const retryAfterSeconds = Math.ceil((rateLimit.resetAt - Date.now()) / 1000);
+    return Response.json(
+      { error: "Too many requests. Please try again later." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(retryAfterSeconds),
+          "X-RateLimit-Limit": String(RATE_LIMIT.limit),
+          "X-RateLimit-Remaining": String(rateLimit.remaining),
+        },
+      }
+    );
+  }
+
   const body = await req.json().catch(() => null);
   const question =
     typeof body?.message === "string" ? body.message.trim() : "";

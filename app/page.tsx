@@ -107,10 +107,11 @@ export default function Home() {
       }
     } catch (err) {
       console.error(err);
-      appendToLastAssistant(() => ({
-        role: "assistant",
-        content: "Something went wrong reaching the assistant. Please try again.",
-      }));
+      const message =
+        err instanceof Error && err.message
+          ? err.message
+          : "Something went wrong reaching the assistant. Please try again.";
+      appendToLastAssistant(() => ({ role: "assistant", content: message }));
     } finally {
       setIsStreaming(false);
     }

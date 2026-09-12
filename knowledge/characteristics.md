@@ -1,19 +1,13 @@
 ---
 type: characteristics
 id: characteristics
-tags: [placeholder]
+tags: [characteristics, personality]
 ---
 
-<!-- PLACEHOLDER DATA ONLY. Add verified self-described characteristics in Phase 7. -->
+- Describes himself as a generalist, drawn to health, finance, and research and problem solving, rather than one fixed lane
+- Drawn to challenges and to leadership through those challenges
+- Only really enjoys school projects when they involve real data
+- Competitive track record: 3 hackathon wins, 5 finalist placements, active in Kaggle competitions
+- Took on real financial responsibility early, as treasurer of a student club, before his professional finance exposure
 
-## Working style
 
-[PLACEHOLDER] Add verified, self-described working preferences.
-
-## Values
-
-[PLACEHOLDER] Add verified values that Aziz chooses to share.
-
-## Collaboration
-
-[PLACEHOLDER] Add verified collaboration preferences.
