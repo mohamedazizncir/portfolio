@@ -5,7 +5,13 @@ import { embedText, type EmbeddedChunk, type KnowledgeIndex } from "./embed";
 export const FALLBACK_ANSWER =
   "I don't have enough information about Aziz to answer that confidently";
 
-export const DEFAULT_MIN_SIMILARITY = 0.7;
+// Empirically checked against the current knowledge base: genuinely
+// irrelevant queries ("what is the capital of France", "write me a
+// recipe") top out around 0.55-0.60, while short, generic-but-genuine
+// questions ("tell me about a project") land around 0.68 — 0.7 excluded
+// that second group. 0.68 keeps a comfortable ~0.08 margin above the
+// irrelevant-query ceiling while admitting the borderline genuine ones.
+export const DEFAULT_MIN_SIMILARITY = 0.68;
 
 export interface RetrievedChunk extends EmbeddedChunk {
   score: number;
