@@ -1,28 +1,27 @@
 "use client";
 
 import { useState } from "react";
+import type { UIAction } from "@/lib/actions/schema";
+import { UIActionRenderer } from "@/components/ui-actions";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
+  actions?: UIAction[];
 }
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   async function sendMessage(text: string) {
     const question = text.trim();
-    if (!question || isStreaming) return;
+    if (!question || isLoading) return;
 
-    setMessages((prev) => [
-      ...prev,
-      { role: "user", content: question },
-      { role: "assistant", content: "" },
-    ]);
+    setMessages((prev) => [...prev, { role: "user", content: question }]);
     setInput("");
-    setIsStreaming(true);
+    setIsLoading(true);
 
     try {
       const res = await fetch("/api/chat", {
@@ -31,35 +30,28 @@ export default function Home() {
         body: JSON.stringify({ message: question }),
       });
 
-      if (!res.body) throw new Error("No response body");
+      const data = await res.json();
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunkText = decoder.decode(value, { stream: true });
-        setMessages((prev) => {
-          const next = [...prev];
-          const last = next[next.length - 1];
-          next[next.length - 1] = { ...last, content: last.content + chunkText };
-          return next;
-        });
+      if (!res.ok) {
+        throw new Error(data?.error ?? "Request failed");
       }
+
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: data.answer, actions: data.actions },
+      ]);
     } catch (err) {
       console.error(err);
-      setMessages((prev) => {
-        const next = [...prev];
-        next[next.length - 1] = {
+      setMessages((prev) => [
+        ...prev,
+        {
           role: "assistant",
-          content: "Something went wrong reaching the assistant. Please try again.",
-        };
-        return next;
-      });
+          content:
+            "Something went wrong reaching the assistant. Please try again.",
+        },
+      ]);
     } finally {
-      setIsStreaming(false);
+      setIsLoading(false);
     }
   }
 
@@ -98,15 +90,33 @@ export default function Home() {
             {messages.map((m, i) => (
               <div
                 key={i}
-                className={
-                  m.role === "user"
-                    ? "self-end rounded-2xl bg-neutral-100 text-neutral-900 px-4 py-2 max-w-[80%]"
-                    : "self-start rounded-2xl bg-neutral-900 px-4 py-2 max-w-[80%] whitespace-pre-wrap"
-                }
+                className={`flex flex-col gap-2 ${
+                  m.role === "user" ? "items-end" : "items-start"
+                }`}
               >
-                {m.content || (isStreaming && i === messages.length - 1 ? "…" : "")}
+                <div
+                  className={
+                    m.role === "user"
+                      ? "rounded-2xl bg-neutral-100 text-neutral-900 px-4 py-2 max-w-[80%]"
+                      : "rounded-2xl bg-neutral-900 px-4 py-2 max-w-[80%] whitespace-pre-wrap"
+                  }
+                >
+                  {m.content}
+                </div>
+                {m.role === "assistant" && m.actions && m.actions.length > 0 && (
+                  <div className="flex flex-wrap gap-2 max-w-[80%]">
+                    {m.actions.map((action, j) => (
+                      <UIActionRenderer key={j} action={action} />
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
+            {isLoading && (
+              <div className="self-start rounded-2xl bg-neutral-900 px-4 py-2 text-neutral-400">
+                …
+              </div>
+            )}
           </div>
 
           <form
@@ -117,7 +127,7 @@ export default function Home() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask me anything about Aziz"
-              disabled={isStreaming}
+              disabled={isLoading}
               autoFocus
               className="mx-auto block w-full max-w-2xl rounded-full border border-neutral-800 bg-neutral-900 px-5 py-3 text-base outline-none focus:border-neutral-500 disabled:opacity-50"
             />
