@@ -10,18 +10,35 @@ interface Message {
   actions?: UIAction[];
 }
 
+type StreamEvent =
+  | { type: "answer_delta"; text: string }
+  | { type: "actions"; actions: UIAction[] }
+  | { type: "error"; message: string };
+
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+
+  function appendToLastAssistant(update: (msg: Message) => Message) {
+    setMessages((prev) => {
+      const next = [...prev];
+      next[next.length - 1] = update(next[next.length - 1]);
+      return next;
+    });
+  }
 
   async function sendMessage(text: string) {
     const question = text.trim();
-    if (!question || isLoading) return;
+    if (!question || isStreaming) return;
 
-    setMessages((prev) => [...prev, { role: "user", content: question }]);
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: question },
+      { role: "assistant", content: "" },
+    ]);
     setInput("");
-    setIsLoading(true);
+    setIsStreaming(true);
 
     try {
       const res = await fetch("/api/chat", {
@@ -30,28 +47,47 @@ export default function Home() {
         body: JSON.stringify({ message: question }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
+      if (!res.ok || !res.body) {
+        const data = await res.json().catch(() => null);
         throw new Error(data?.error ?? "Request failed");
       }
 
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: data.answer, actions: data.actions },
-      ]);
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          const event = JSON.parse(line) as StreamEvent;
+
+          if (event.type === "answer_delta") {
+            appendToLastAssistant((msg) => ({
+              ...msg,
+              content: msg.content + event.text,
+            }));
+          } else if (event.type === "actions") {
+            appendToLastAssistant((msg) => ({ ...msg, actions: event.actions }));
+          } else if (event.type === "error") {
+            appendToLastAssistant((msg) => ({ ...msg, content: event.message }));
+          }
+        }
+      }
     } catch (err) {
       console.error(err);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content:
-            "Something went wrong reaching the assistant. Please try again.",
-        },
-      ]);
+      appendToLastAssistant(() => ({
+        role: "assistant",
+        content: "Something went wrong reaching the assistant. Please try again.",
+      }));
     } finally {
-      setIsLoading(false);
+      setIsStreaming(false);
     }
   }
 
@@ -101,7 +137,8 @@ export default function Home() {
                       : "rounded-2xl bg-neutral-900 px-4 py-2 max-w-[80%] whitespace-pre-wrap"
                   }
                 >
-                  {m.content}
+                  {m.content ||
+                    (isStreaming && i === messages.length - 1 ? "…" : "")}
                 </div>
                 {m.role === "assistant" && m.actions && m.actions.length > 0 && (
                   <div className="flex flex-wrap gap-2 max-w-[80%]">
@@ -112,11 +149,6 @@ export default function Home() {
                 )}
               </div>
             ))}
-            {isLoading && (
-              <div className="self-start rounded-2xl bg-neutral-900 px-4 py-2 text-neutral-400">
-                …
-              </div>
-            )}
           </div>
 
           <form
@@ -127,7 +159,7 @@ export default function Home() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask me anything about Aziz"
-              disabled={isLoading}
+              disabled={isStreaming}
               autoFocus
               className="mx-auto block w-full max-w-2xl rounded-full border border-neutral-800 bg-neutral-900 px-5 py-3 text-base outline-none focus:border-neutral-500 disabled:opacity-50"
             />
