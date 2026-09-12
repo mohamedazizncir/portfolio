@@ -1,4 +1,5 @@
 import { GeminiProvider } from "./providers/gemini";
+import { GroqProvider } from "./providers/groq";
 
 export type ChatRole = "system" | "user" | "assistant";
 
@@ -40,6 +41,9 @@ export function getLLMProvider(): LLMProvider {
   switch (providerName) {
     case "gemini":
       cachedProvider = new GeminiProvider();
+      break;
+    case "groq":
+      cachedProvider = new GroqProvider();
       break;
     default:
       throw new Error(`Unknown LLM provider: "${providerName}"`);
