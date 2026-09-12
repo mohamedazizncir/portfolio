@@ -4,7 +4,7 @@ type Props = { action: Extract<UIAction, { type: "HIGHLIGHT_SKILL" }> };
 
 export function HighlightSkillAction({ action }: Props) {
   return (
-    <span className="inline-block rounded-full border border-neutral-700 bg-neutral-800 px-3 py-1 text-sm text-neutral-100">
+    <span className="inline-block rounded-full border border-accent/40 bg-surface px-3 py-1 text-sm text-foreground">
       {action.skill}
     </span>
   );

@@ -6,14 +6,16 @@ export function ShowProjectsAction({ action }: Props) {
   const { filters } = action;
 
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 text-sm">
-      <p className="font-medium">Projects</p>
+    <div className="rounded-xl border border-border border-l-2 border-l-accent bg-surface px-4 py-3 text-sm">
+      <p className="font-mono text-xs uppercase tracking-wide text-accent">
+        Projects
+      </p>
       {filters?.category && (
-        <p className="text-neutral-400">Category: {filters.category}</p>
+        <p className="mt-1 text-muted">Category: {filters.category}</p>
       )}
-      {filters?.tech && <p className="text-neutral-400">Tech: {filters.tech}</p>}
+      {filters?.tech && <p className="mt-1 text-muted">Tech: {filters.tech}</p>}
       {!filters?.category && !filters?.tech && (
-        <p className="text-neutral-400">Showing all projects.</p>
+        <p className="mt-1 text-muted">Showing all projects.</p>
       )}
     </div>
   );

@@ -3,7 +3,7 @@ export function ShowArchitectureAction() {
   return (
     <a
       href="/architecture"
-      className="inline-block rounded-full border border-neutral-700 bg-neutral-800 px-4 py-2 text-sm text-neutral-100 hover:border-neutral-500"
+      className="inline-block rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none"
     >
       See how this works →
     </a>

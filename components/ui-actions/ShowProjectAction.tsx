@@ -4,9 +4,11 @@ type Props = { action: Extract<UIAction, { type: "SHOW_PROJECT" }> };
 
 export function ShowProjectAction({ action }: Props) {
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 text-sm">
-      <p className="font-medium">Project: {action.id}</p>
-      <p className="text-neutral-400">
+    <div className="rounded-xl border border-border border-l-2 border-l-accent bg-surface px-4 py-3 text-sm">
+      <p className="font-mono text-xs uppercase tracking-wide text-accent">
+        Project: {action.id}
+      </p>
+      <p className="mt-1 text-muted">
         Full project details ship in a later phase.
       </p>
     </div>
