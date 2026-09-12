@@ -1,3 +1,10 @@
+// Next.js auto-loads .env.local inside its own runtime (dev/build/start),
+// but this script runs standalone via tsx, so it needs its own env loading.
+// dotenv/config's default target is ".env", not ".env.local", so the path
+// must be given explicitly.
+import { config as loadEnv } from "dotenv";
+loadEnv({ path: ".env.local", quiet: true });
+
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chunkMarkdown } from "../lib/rag/chunk";
