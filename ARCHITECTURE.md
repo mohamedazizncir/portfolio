@@ -1,5 +1,9 @@
 # AI Portfolio: Architecture Brief
 
+## Operating latitude
+
+Operating latitude: within this architecture, you have freedom to make implementation-level decisions, refactors, and UI/UX improvements without asking first, small execution choices, better component structure, better motion, better layout, anything that clearly serves the existing design and doesn't change the product's meaning. Still required: never invent facts about Aziz, never push to git, keep commits small and logical, and if you're about to do something hard to reverse or genuinely unsure about (deleting real content, a major architectural change, adding a new personal claim), say so and ask instead of guessing.
+
 Status: proposal, not yet approved. No implementation started.
 
 ## 1. Concept analysis
