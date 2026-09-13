@@ -5,15 +5,18 @@ import type { UIAction } from "@/lib/actions/schema";
 import { SuggestedChips } from "@/components/chat/SuggestedChips";
 import { ActionPanel } from "@/components/chat/ActionPanel";
 import { PersistentMenu } from "@/components/chat/PersistentMenu";
+import { AnswerGallery } from "@/components/chat/AnswerGallery";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
   actions?: UIAction[];
+  images?: string[];
 }
 
 type StreamEvent =
   | { type: "answer_delta"; text: string }
+  | { type: "images"; images: string[] }
   | { type: "actions"; actions: UIAction[] }
   | { type: "error"; message: string };
 
@@ -94,6 +97,8 @@ export default function Home() {
               ...msg,
               content: msg.content + event.text,
             }));
+          } else if (event.type === "images") {
+            appendToLastAssistant((msg) => ({ ...msg, images: event.images }));
           } else if (event.type === "actions") {
             appendToLastAssistant((msg) => ({ ...msg, actions: event.actions }));
             if (event.actions.length > 0) {
@@ -196,6 +201,12 @@ export default function Home() {
                       />
                     )}
                   </div>
+
+                  {m.role === "assistant" && m.images && m.images.length > 0 && (
+                    <div className="w-full max-w-[80%] min-w-0">
+                      <AnswerGallery images={m.images} />
+                    </div>
+                  )}
                 </div>
               );
             })}
