@@ -3,6 +3,7 @@ import { getLLMProvider, type ChatMessage, type LLMProvider } from "@/lib/llm/pr
 import { validateActions } from "@/lib/actions/schema";
 import { retrieve, type RetrievedChunk } from "@/lib/rag/retrieve";
 import { collectResponseImages } from "@/lib/rag/images";
+import { detectSkills } from "@/lib/skills/catalogue";
 import { EmbeddingConnectivityError } from "@/lib/rag/embed";
 import { checkRateLimit } from "@/lib/rate-limit";
 
@@ -139,6 +140,7 @@ async function classifyIntent(
 type StreamEvent =
   | { type: "answer_delta"; text: string }
   | { type: "images"; images: string[] }
+  | { type: "skills"; skills: string[] }
   | { type: "actions"; actions: Awaited<ReturnType<typeof validateActions>> }
   | { type: "error"; message: string };
 
@@ -288,6 +290,13 @@ export async function POST(req: NextRequest) {
           if (images.length > 0) send({ type: "images", images });
 
           const context = buildContext(retrieval.chunks);
+
+          // Logos are derived from the retrieved knowledge text by the same
+          // rule as the images: detected from the excerpts, never taken from
+          // the model's output, so a logo can only ever appear for a
+          // technology written down in the knowledge base.
+          const skills = detectSkills(context);
+          if (skills.length > 0) send({ type: "skills", skills });
           const messages: ChatMessage[] = [
             {
               role: "system",
