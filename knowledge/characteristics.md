@@ -2,6 +2,8 @@
 type: characteristics
 id: characteristics
 tags: [characteristics, personality]
+images[Introduction]: [/activities/hackathons/hackathon-team-coding.jpeg, /activities/hackathons/hackathon-mentoring.jpeg]
+images[Coming back from injury]: [/about/acl-injury.jpeg, /about/acl-recovery-period.jpeg, /about/acl-comeback.jpeg]
 ---
 
 - Describes himself as a generalist, drawn to health, finance, and research and problem solving, rather than one fixed lane

@@ -2,6 +2,8 @@
 type: experience
 id: experience
 tags: [experience, internships]
+images[STEG internship, Sousse (06/2025 to 08/2025)]: [/experience/steg/steg-internship-team.jpeg, /experience/steg/steg-internship-portrait.jpeg]
+images[IEEE ENIT SIGHT GROUP (02/2025 to 01/2026)]: [/experience/ieee-sight/sight.png, /experience/ieee-sight/sight-of-the-year-trophy.jpeg, /experience/ieee-sight/sight-day-congress.jpg, /experience/ieee-sight/sight-day-congress-group.jpg, /experience/ieee-sight/ieee.jpg, /experience/ieee-sight/sight-year-brochure.jpeg, /experience/ieee-sight/ieee-social.jpeg]
 ---
 
 ## STEG internship, Sousse (06/2025 to 08/2025)

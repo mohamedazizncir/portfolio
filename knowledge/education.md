@@ -2,6 +2,7 @@
 type: education
 id: education
 tags: [education, academic]
+images: [/education/class-of-ipeim.jpeg, /education/cp-team-photo.jpeg, /education/coding-at-cp.jpeg, /education/enit-classmates-photo.jpeg]
 ---
 
 - Bac Maths, mention très bien, 2022, final grade 16.5/20
