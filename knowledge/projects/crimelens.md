@@ -2,6 +2,7 @@
 type: project
 id: crimelens
 tags: [python, data, backend, frontend]
+images: [/projects/crimelens/hotspot-map.png]
 ---
 
 ## CrimeLens

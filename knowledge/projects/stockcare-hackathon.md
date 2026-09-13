@@ -2,6 +2,7 @@
 type: project
 id: stockcare-hackathon
 tags: [python, reinforcement-learning, healthcare, hackathon]
+images: [/projects/stockcare-hackathon/screenshot.jpg, /projects/stockcare-hackathon/pitching-photo.png, /projects/stockcare-hackathon/team-photo.jpeg]
 ---
 
 ## StockCare, healthcare AI hackathon

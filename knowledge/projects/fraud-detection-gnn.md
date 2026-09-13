@@ -2,6 +2,7 @@
 type: project
 id: fraud-detection-gnn
 tags: [python, graph-neural-networks, finance, hackathon]
+images: [/projects/fraud-detection-gnn/winning-photo.jpeg]
 ---
 
 ## Insurance fraud detection with Graph Neural Networks

@@ -2,6 +2,7 @@
 type: project
 id: rl-trading-agent
 tags: [python, reinforcement-learning, finance]
+images: [/projects/rl-trading-agent/workflow-diagram.png, /projects/rl-trading-agent/risk-boxplot.png, /projects/rl-trading-agent/risk-averse-performance.png]
 ---
 
 ## Reinforcement learning trading agent

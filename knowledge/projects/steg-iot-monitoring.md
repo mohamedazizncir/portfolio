@@ -2,6 +2,7 @@
 type: project
 id: steg-iot-monitoring
 tags: [python, iot, backend]
+images: [/projects/steg-iot-monitoring/platform-screenshot.png, /projects/steg-iot-monitoring/whatsapp-chatbot.png]
 ---
 
 ## STEG IoT monitoring platform (STEGPoint)

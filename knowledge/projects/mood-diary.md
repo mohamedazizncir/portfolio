@@ -2,6 +2,7 @@
 type: project
 id: mood-diary
 tags: [flutter, mobile, ai]
+images: [/projects/mood-diary/screenshot.png]
 ---
 
 ## Mood Diary

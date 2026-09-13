@@ -2,6 +2,7 @@
 type: project
 id: appointment-platform
 tags: [java, backend]
+images: [/projects/appointment-platform/screenshot-1.png, /projects/appointment-platform/screenshot-2.png]
 ---
 
 ## Online appointment booking platform
