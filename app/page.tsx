@@ -6,17 +6,21 @@ import { SuggestedChips } from "@/components/chat/SuggestedChips";
 import { ActionPanel } from "@/components/chat/ActionPanel";
 import { PersistentMenu } from "@/components/chat/PersistentMenu";
 import { AnswerGallery } from "@/components/chat/AnswerGallery";
+import { Hero } from "@/components/chat/Hero";
+import { AnswerSkills } from "@/components/chat/AnswerSkills";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
   actions?: UIAction[];
   images?: string[];
+  skills?: string[];
 }
 
 type StreamEvent =
   | { type: "answer_delta"; text: string }
   | { type: "images"; images: string[] }
+  | { type: "skills"; skills: string[] }
   | { type: "actions"; actions: UIAction[] }
   | { type: "error"; message: string };
 
@@ -99,6 +103,8 @@ export default function Home() {
             }));
           } else if (event.type === "images") {
             appendToLastAssistant((msg) => ({ ...msg, images: event.images }));
+          } else if (event.type === "skills") {
+            appendToLastAssistant((msg) => ({ ...msg, skills: event.skills }));
           } else if (event.type === "actions") {
             appendToLastAssistant((msg) => ({ ...msg, actions: event.actions }));
             if (event.actions.length > 0) {
@@ -129,39 +135,32 @@ export default function Home() {
 
   if (!hasConversation) {
     return (
-      <main className="flex h-dvh flex-col items-center justify-center bg-background px-4 text-foreground">
+      <main className="flex min-h-dvh flex-col items-center justify-center overflow-x-hidden bg-background px-4 py-12 text-foreground">
         <PersistentMenu onSelect={sendMessage} disabled={isStreaming} />
-        <div className="flex w-full max-w-xl flex-col items-center gap-8 text-center">
-          <div className="space-y-3">
-            <h1 className="font-mono text-4xl font-semibold tracking-tight sm:text-5xl">
-              AZIZ<span className="text-accent">/AI</span>
-            </h1>
-            <p className="text-base text-muted sm:text-lg">
-              An AI-driven portfolio — ask a question instead of scrolling.
-            </p>
+        <Hero>
+          <div className="flex flex-col items-center gap-4">
+            <form onSubmit={handleSubmit} className="w-full">
+              <label htmlFor="chat-input" className="sr-only">
+                Ask a question about Aziz
+              </label>
+              <div className="flex items-center gap-2 rounded-full border border-border bg-surface px-5 py-3.5 transition-colors focus-within:border-accent">
+                <span className="font-mono text-accent select-none" aria-hidden="true">
+                  ›
+                </span>
+                <input
+                  id="chat-input"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Ask me anything about Aziz"
+                  autoFocus
+                  className="w-full bg-transparent font-mono text-sm text-foreground outline-none placeholder:text-muted sm:text-base"
+                />
+              </div>
+            </form>
+
+            <SuggestedChips onSelect={sendMessage} />
           </div>
-
-          <form onSubmit={handleSubmit} className="w-full">
-            <label htmlFor="chat-input" className="sr-only">
-              Ask a question about Aziz
-            </label>
-            <div className="flex items-center gap-2 rounded-full border border-border bg-surface px-5 py-3 transition-colors focus-within:border-accent">
-              <span className="font-mono text-accent select-none" aria-hidden="true">
-                ›
-              </span>
-              <input
-                id="chat-input"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask me anything about Aziz"
-                autoFocus
-                className="w-full bg-transparent font-mono text-sm text-foreground outline-none placeholder:text-muted sm:text-base"
-              />
-            </div>
-          </form>
-
-          <SuggestedChips onSelect={sendMessage} />
-        </div>
+        </Hero>
       </main>
     );
   }
@@ -174,7 +173,7 @@ export default function Home() {
           chatVisible ? "opacity-100" : "opacity-0"
         }`}
       >
-        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 pt-6">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 pt-16 md:pt-6">
           <div className="mx-auto flex max-w-2xl flex-col gap-4 pb-4">
             {messages.map((m, i) => {
               const isLastAssistant =
@@ -202,8 +201,12 @@ export default function Home() {
                     )}
                   </div>
 
+                  {m.role === "assistant" && m.skills && m.skills.length > 0 && (
+                    <AnswerSkills skills={m.skills} />
+                  )}
+
                   {m.role === "assistant" && m.images && m.images.length > 0 && (
-                    <div className="w-full max-w-[80%] min-w-0">
+                    <div className="w-full min-w-0">
                       <AnswerGallery images={m.images} />
                     </div>
                   )}
