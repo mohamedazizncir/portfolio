@@ -1,7 +1,13 @@
+import { sanitizeImagePaths } from "./images";
+
 export interface KnowledgeMetadata {
   type?: string;
   id?: string;
   tags?: string[];
+  /** Images that apply to every section of the file. */
+  images?: string[];
+  /** Images scoped to a single heading, keyed by that heading lowercased. */
+  sectionImages?: Record<string, string[]>;
 }
 
 export interface MarkdownChunk {
@@ -10,6 +16,8 @@ export interface MarkdownChunk {
   heading: string;
   content: string;
   metadata: KnowledgeMetadata;
+  /** Resolved for this section: file-wide images plus this heading's own. */
+  images?: string[];
 }
 
 export interface ChunkOptions {
@@ -17,6 +25,15 @@ export interface ChunkOptions {
 }
 
 const DEFAULT_MAX_WORDS = 350;
+
+/** Splits the `[a, b, c]` inline-list form shared by `tags` and `images`. */
+function parseInlineList(value: string): string[] {
+  return value
+    .replace(/^\[|\]$/g, "")
+    .split(",")
+    .map((entry) => entry.trim().replace(/^['"]|['"]$/g, ""))
+    .filter(Boolean);
+}
 
 export function parseFrontmatter(markdown: string): {
   metadata: KnowledgeMetadata;
@@ -27,6 +44,25 @@ export function parseFrontmatter(markdown: string): {
 
   const metadata: KnowledgeMetadata = {};
   for (const line of match[1].split(/\r?\n/)) {
+    // `images[Some Heading]: [...]` scopes images to one section of a
+    // multi-section file, so the IEEE photos in experience.md don't get
+    // attached to the STEG internship answer as well. Matched before the
+    // generic "key: value" split below, since a heading can itself contain
+    // a colon, which would confuse a plain indexOf(":").
+    //
+    // The heading is matched against the section headings chunkMarkdown
+    // produces, case-insensitively. Text above the first heading in a file
+    // belongs to the synthesized section "Introduction".
+    const scoped = line.match(/^\s*images\[(.+?)\]\s*:(.*)$/);
+    if (scoped) {
+      const heading = scoped[1].trim().toLowerCase();
+      const paths = sanitizeImagePaths(parseInlineList(scoped[2].trim()));
+      if (heading && paths.length > 0) {
+        metadata.sectionImages = { ...metadata.sectionImages, [heading]: paths };
+      }
+      continue;
+    }
+
     const separator = line.indexOf(":");
     if (separator < 1) continue;
 
@@ -36,11 +72,10 @@ export function parseFrontmatter(markdown: string): {
       metadata[key] = value.replace(/^['"]|['"]$/g, "");
     }
     if (key === "tags") {
-      metadata.tags = value
-        .replace(/^\[|\]$/g, "")
-        .split(",")
-        .map((tag) => tag.trim().replace(/^['"]|['"]$/g, ""))
-        .filter(Boolean);
+      metadata.tags = parseInlineList(value);
+    }
+    if (key === "images") {
+      metadata.images = sanitizeImagePaths(parseInlineList(value));
     }
   }
 
@@ -100,8 +135,13 @@ export function chunkMarkdown(
     });
   }
 
-  return sections.flatMap((section) =>
-    splitLongSection(section.body, maxWords).map((sectionPart, partIndex) => ({
+  return sections.flatMap((section) => {
+    const sectionImages = sanitizeImagePaths([
+      ...(metadata.images ?? []),
+      ...(metadata.sectionImages?.[section.heading.toLowerCase()] ?? []),
+    ]);
+
+    return splitLongSection(section.body, maxWords).map((sectionPart, partIndex) => ({
       id: `${source.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "")}-${section.heading
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
@@ -110,6 +150,10 @@ export function chunkMarkdown(
       heading: section.heading,
       content: `## ${section.heading}\n\n${sectionPart}`,
       metadata,
-    }))
-  );
+      // Only the first part carries the images: a long section split into
+      // several chunks would otherwise attach the same photos repeatedly
+      // when more than one of its parts is retrieved.
+      ...(partIndex === 0 && sectionImages.length > 0 ? { images: sectionImages } : {}),
+    }));
+  });
 }

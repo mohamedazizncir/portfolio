@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { getLLMProvider, type ChatMessage, type LLMProvider } from "@/lib/llm/provider";
 import { validateActions } from "@/lib/actions/schema";
 import { retrieve, type RetrievedChunk } from "@/lib/rag/retrieve";
+import { collectResponseImages } from "@/lib/rag/images";
 import { EmbeddingConnectivityError } from "@/lib/rag/embed";
 import { checkRateLimit } from "@/lib/rate-limit";
 
@@ -137,6 +138,7 @@ async function classifyIntent(
 
 type StreamEvent =
   | { type: "answer_delta"; text: string }
+  | { type: "images"; images: string[] }
   | { type: "actions"; actions: Awaited<ReturnType<typeof validateActions>> }
   | { type: "error"; message: string };
 
@@ -278,6 +280,13 @@ export async function POST(req: NextRequest) {
             send({ type: "actions", actions: [] });
           }
         } else {
+          // Resolved from the retrieved chunks' own frontmatter, never from
+          // the model, and sent before the prose so the client can reveal
+          // the gallery as the answer streams in. The model is not told the
+          // images exist, so it cannot describe or invent one.
+          const images = collectResponseImages(retrieval.chunks);
+          if (images.length > 0) send({ type: "images", images });
+
           const context = buildContext(retrieval.chunks);
           const messages: ChatMessage[] = [
             {
