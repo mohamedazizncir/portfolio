@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { AmbientBackground } from "@/components/chat/AmbientBackground";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,7 +28,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <AmbientBackground />
+        {/* Everything real sits above the ambient layer, which is a fixed
+            z-0 element behind it — see AmbientBackground's own comment for
+            why a positive z-index here is more reliable cross-browser than
+            a negative one on the background itself. */}
+        <div className="relative z-10">{children}</div>
       </body>
     </html>
   );

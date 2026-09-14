@@ -163,3 +163,45 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/*
+  Ambient background rows (components/chat/AmbientBackground.tsx). Each row
+  renders two identical copies of its image strip side by side; both copies
+  share the exact same animation, translating by 100% of their own
+  (identical) width. So as copy 1 slides fully out of view, copy 2 — which
+  started immediately to its right — arrives at exactly copy 1's starting
+  position, with no visible seam. Same technique as the skill marquee, just
+  mirrored for the second row so the two drift in opposite directions.
+*/
+@keyframes ambient-drift-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes ambient-drift-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.ambient-row-left {
+  animation: ambient-drift-left 90s linear infinite;
+}
+
+.ambient-row-right {
+  animation: ambient-drift-right 120s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-row-left,
+  .ambient-row-right {
+    animation: none !important;
+  }
+}
