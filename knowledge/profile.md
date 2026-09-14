@@ -12,8 +12,6 @@ From Sousse, Tunisia.
 
 Describes himself as a generalist, interested in health, finance, and research and problem solving in general, rather than one narrow track.
 
-Was accepted into a dual master's degree at IPP (Institut Polytechnique de Paris) in Cyber-Physical Systems, but chose not to go because it was not his passion.
-
 ## Education path
 
 Bac Maths, mention très bien, 2022, final grade 16.5/20.

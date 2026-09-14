@@ -110,8 +110,8 @@ export async function loadExperienceEntries(): Promise<TimelineEntry[]> {
 /**
  * Education entries from knowledge/education.md's single bulleted section.
  * Each bullet is its own entry, parsed independently for a date; a bullet
- * with no extractable date (the declined IPP master's, "currently
- * learning") keeps dateLabel null rather than getting a guessed one.
+ * with no extractable date (such as "currently learning") keeps dateLabel
+ * null rather than getting a guessed one.
  */
 export async function loadEducationEntries(): Promise<TimelineEntry[]> {
   const chunks = await loadChunks("knowledge/education.md");
