@@ -3,6 +3,7 @@ import path from "node:path";
 import { chunkMarkdown, parseFrontmatter } from "@/lib/rag/chunk";
 import type { UIAction } from "./schema";
 import { buildTimeline, loadExperienceEntries, type Timeline, type TimelineEntry } from "./timeline";
+import { loadContactDetail, type ContactDetail } from "./contact";
 
 export interface ProjectDetail {
   title: string;
@@ -23,6 +24,7 @@ export type EnrichedAction = UIAction & {
   projectDetail?: ProjectDetail;
   experienceEntries?: TimelineEntry[];
   timeline?: Timeline;
+  contactDetail?: ContactDetail;
 };
 
 function stripHeadingPrefix(content: string): string {
@@ -75,9 +77,10 @@ async function loadProjectDetail(id: string): Promise<ProjectDetail | null> {
 /**
  * Attaches real content to each validated action so the UI can render more
  * than a placeholder: the project's own description and images for
- * SHOW_PROJECT, every real entry for SHOW_EXPERIENCE, and a chronological
- * view of education plus experience for SHOW_TIMELINE. Actions without
- * extra detail (SHOW_CONTACT until real contact data exists, HIGHLIGHT_SKILL,
+ * SHOW_PROJECT, every real entry for SHOW_EXPERIENCE, a chronological view
+ * of education plus experience for SHOW_TIMELINE, and the real email,
+ * GitHub and LinkedIn for SHOW_CONTACT (knowledge/contact.md via
+ * lib/actions/contact.ts). Actions without extra detail (HIGHLIGHT_SKILL,
  * OPEN_GITHUB, SHOW_ARCHITECTURE, SHOW_PROJECTS) pass through unchanged.
  */
 export async function enrichActions(actions: UIAction[]): Promise<EnrichedAction[]> {
@@ -92,6 +95,9 @@ export async function enrichActions(actions: UIAction[]): Promise<EnrichedAction
       }
       if (action.type === "SHOW_TIMELINE") {
         return { ...action, timeline: await buildTimeline() };
+      }
+      if (action.type === "SHOW_CONTACT") {
+        return { ...action, contactDetail: await loadContactDetail() };
       }
       return action;
     })

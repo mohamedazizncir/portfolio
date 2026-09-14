@@ -30,7 +30,7 @@ export function UIActionRenderer({ action }: { action: EnrichedAction }) {
     case "OPEN_GITHUB":
       return <OpenGithubAction action={action} />;
     case "SHOW_CONTACT":
-      return <ShowContactAction />;
+      return <ShowContactAction action={action} />;
     case "SHOW_ARCHITECTURE":
       return <ShowArchitectureAction />;
   }

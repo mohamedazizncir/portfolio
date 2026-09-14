@@ -5,14 +5,12 @@ import { parseFrontmatter } from "@/lib/rag/chunk";
 
 /**
  * Fixed allowlist for OPEN_GITHUB. The model can never supply an arbitrary
- * URL — only entries listed here are ever allowed through.
- *
- * PLACEHOLDER: empty on purpose so OPEN_GITHUB fails closed (the action is
- * silently dropped) until real links are added. Fill in with Aziz's actual
- * GitHub profile and live demo URLs before relying on this action, e.g.:
- *   "https://github.com/REPLACE_ME"
+ * URL — only entries listed here are ever allowed through, matching
+ * knowledge/contact.md, the only place this URL is ever shown to the model.
  */
-export const ALLOWED_GITHUB_URLS: readonly string[] = [];
+export const ALLOWED_GITHUB_URLS: readonly string[] = [
+  "https://github.com/mohamedazizncir",
+];
 
 const showProjectsActionSchema = z
   .object({
