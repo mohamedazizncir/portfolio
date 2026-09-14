@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { embedText, type EmbeddedChunk, type KnowledgeIndex } from "./embed";
-import { matchTopicTags } from "./topics";
+import { GATED_TOPIC_TAGS, matchTopicTags } from "./topics";
 
 export const FALLBACK_ANSWER =
   "I don't have enough information about Aziz to answer that confidently";
@@ -150,7 +150,16 @@ export async function retrieve(
     loadIndex(),
     embedText(query, { taskType: "RETRIEVAL_QUERY" }),
   ]);
-  const result = rankChunks(queryEmbedding, index.chunks, options);
+  // Gated sections (see GATED_TOPIC_TAGS) only compete when the query names
+  // their topic outright; widenByTopic below still pulls them in then.
+  const topicTags = matchTopicTags(query);
+  const searchable = index.chunks.filter(
+    (chunk) =>
+      !chunk.metadata.tags?.some(
+        (tag) => GATED_TOPIC_TAGS.includes(tag) && !topicTags.includes(tag)
+      )
+  );
+  const result = rankChunks(queryEmbedding, searchable, options);
   const topK = Math.max(3, Math.min(5, options.topK ?? 4));
   return widenByTopic(query, result, index, queryEmbedding, topK);
 }

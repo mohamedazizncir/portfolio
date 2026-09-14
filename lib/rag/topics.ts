@@ -20,7 +20,21 @@ export interface TopicRoute {
   tags: readonly string[];
   /** Distinctive words that reliably signal this topic and nothing else. */
   triggerWords: readonly string[];
+  /** Multi-word phrases, for topics whose single words are too ambiguous. */
+  triggerPhrases?: readonly string[];
 }
+
+/**
+ * Tags whose chunks are left out of plain semantic search entirely, and only
+ * retrieved when the query names their topic through the routes below.
+ *
+ * knowledge/personal-life.md is a joke answer. Embedding similarity alone
+ * put it next to "tell me about his personal projects" and "what does he do
+ * in his free time", which would let it leak into answers a recruiter is
+ * actually reading. Gating it behind explicit trigger words and phrases
+ * keeps it to the questions it was written for.
+ */
+export const GATED_TOPIC_TAGS: readonly string[] = ["personal-life"];
 
 const TOPIC_ROUTES: readonly TopicRoute[] = [
   {
@@ -62,6 +76,35 @@ const TOPIC_ROUTES: readonly TopicRoute[] = [
     triggerWords: ["education", "academic", "ipeim", "enit", "baccalaureate"],
   },
   {
+    // "personal", "single" and "love" only count inside the phrases below:
+    // on their own they show up in ordinary questions ("personal projects",
+    // "single-page app", "loves finance").
+    tags: ["personal-life", "relationships"],
+    triggerWords: [
+      "girlfriend",
+      "girlfriends",
+      "boyfriend",
+      "relationship",
+      "relationships",
+      "dating",
+      "married",
+      "marriage",
+      "wife",
+      "crush",
+      "romantic",
+      "romance",
+    ],
+    triggerPhrases: [
+      "personal life",
+      "love life",
+      "private life",
+      "is he single",
+      "is aziz single",
+      "he is single",
+      "aziz is single",
+    ],
+  },
+  {
     tags: ["about", "identity"],
     triggerWords: ["identity", "bio", "biography"],
   },
@@ -86,10 +129,14 @@ function significantWords(query: string): Set<string> {
 export function matchTopicTags(query: string): string[] {
   const words = significantWords(query);
   if (words.size === 0) return [];
+  // Letters only, single-spaced and padded, so a phrase matches whole words.
+  const normalised = ` ${(query.toLowerCase().match(WORD_PATTERN) ?? []).join(" ")} `;
 
   const matchedTags = new Set<string>();
   for (const route of TOPIC_ROUTES) {
-    if (route.triggerWords.some((trigger) => words.has(trigger))) {
+    const wordHit = route.triggerWords.some((trigger) => words.has(trigger));
+    const phraseHit = route.triggerPhrases?.some((phrase) => normalised.includes(` ${phrase} `));
+    if (wordHit || phraseHit) {
       for (const tag of route.tags) matchedTags.add(tag);
     }
   }

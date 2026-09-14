@@ -10,6 +10,9 @@ import { PersistentMenu } from "@/components/chat/PersistentMenu";
 import { AnswerGallery } from "@/components/chat/AnswerGallery";
 import { Hero } from "@/components/chat/Hero";
 import { AnswerSkills } from "@/components/chat/AnswerSkills";
+import { MusicToggle } from "@/components/chat/MusicToggle";
+import { useMusic } from "@/components/chat/useMusic";
+import { toolbarButtonClass } from "@/components/chat/toolbarButton";
 
 interface Message {
   role: "user" | "assistant";
@@ -40,28 +43,35 @@ export function HomeChat({ contact, projects }: Props) {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [chatVisible, setChatVisible] = useState(false);
   const [scrolledPastTop, setScrolledPastTop] = useState(false);
+  // The visitor went back to the landing screen mid-conversation. The
+  // conversation itself is kept, so they can pick it back up from there.
+  const [showHome, setShowHome] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
+  const music = useMusic();
 
   const hasConversation = messages.length > 0;
+  const inChat = hasConversation && !showHome;
 
   useEffect(() => {
-    if (!hasConversation) {
+    if (!inChat) {
       setChatVisible(false);
       return;
     }
     const frame = requestAnimationFrame(() => setChatVisible(true));
     return () => cancelAnimationFrame(frame);
-  }, [hasConversation]);
+  }, [inChat]);
 
+  // Also re-runs on returning from the landing screen, which mounts a fresh
+  // scroll container that would otherwise start at the top.
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-  }, [messages]);
+  }, [messages, inChat]);
 
-  // The quick-links button sits fixed directly over the top of the message
-  // column, so once the visitor has scrolled even slightly, it recedes
-  // instead of sitting fully opaque over whatever text scrolled underneath
-  // it — see PersistentMenu's `recede` prop.
+  // The toolbar sits fixed directly over the top of the message column, so
+  // once the visitor has scrolled even slightly, it recedes instead of
+  // sitting fully opaque over whatever text scrolled underneath it — see
+  // PersistentMenu's `recede` prop.
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -72,7 +82,7 @@ export function HomeChat({ contact, projects }: Props) {
 
     el.addEventListener("scroll", handleScroll, { passive: true });
     return () => el.removeEventListener("scroll", handleScroll);
-  }, [hasConversation]);
+  }, [inChat]);
 
   function appendToLastAssistant(update: (msg: Message) => Message) {
     setMessages((prev) => {
@@ -92,6 +102,7 @@ export function HomeChat({ contact, projects }: Props) {
       { role: "assistant", content: "" },
     ]);
     setInput("");
+    setShowHome(false);
     setIsStreaming(true);
 
     try {
@@ -160,12 +171,78 @@ export function HomeChat({ contact, projects }: Props) {
     sendMessage(input);
   }
 
-  if (!hasConversation) {
+  // Top-left on both screens: quick links, then (mid-conversation) a way back
+  // to the landing screen, then the music toggle.
+  const toolbar = (
+    <div className="fixed left-4 top-4 z-30 flex items-center gap-2">
+      <PersistentMenu
+        onSelect={sendMessage}
+        disabled={isStreaming}
+        recede={inChat && scrolledPastTop}
+      />
+      {inChat && (
+        <button
+          type="button"
+          onClick={() => setShowHome(true)}
+          aria-label="Back to the start page"
+          title="Back to the start page"
+          className={`${toolbarButtonClass({ recede: scrolledPastTop })} px-4`}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            className="h-4 w-4 shrink-0"
+            aria-hidden="true"
+          >
+            <path
+              d="M3.5 9 10 3.5 16.5 9M5.5 7.5V16h3.25v-4.25h2.5V16h3.25V7.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span className="font-mono text-sm">Home</span>
+        </button>
+      )}
+      {music.supported && (
+        <MusicToggle
+          playing={music.playing}
+          onToggle={music.toggle}
+          showLabel={!inChat}
+          recede={inChat && scrolledPastTop}
+        />
+      )}
+    </div>
+  );
+
+  if (!inChat) {
     return (
-      <main className="flex min-h-dvh flex-col items-center justify-center overflow-x-hidden px-4 py-12 text-foreground">
-        <PersistentMenu onSelect={sendMessage} disabled={isStreaming} />
+      <main className="flex min-h-dvh flex-col items-center justify-center overflow-x-hidden px-4 pb-12 pt-20 text-foreground">
+        {toolbar}
         <Hero contact={contact}>
           <div className="flex flex-col items-center gap-4">
+            {hasConversation && (
+              <button
+                type="button"
+                onClick={() => setShowHome(false)}
+                className="flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-5 py-2.5 font-mono text-sm text-accent transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none"
+              >
+                <span aria-hidden="true">&larr;</span>
+                Back to your conversation
+                {isStreaming && (
+                  <>
+                    <span
+                      className="h-2 w-2 animate-pulse rounded-full bg-accent motion-reduce:animate-none"
+                      aria-hidden="true"
+                    />
+                    <span className="sr-only">(an answer is still arriving)</span>
+                  </>
+                )}
+              </button>
+            )}
+
             <form onSubmit={handleSubmit} className="w-full">
               <label htmlFor="chat-input" className="sr-only">
                 Ask a question about Aziz
@@ -185,7 +262,7 @@ export function HomeChat({ contact, projects }: Props) {
               </div>
             </form>
 
-            <SuggestedChips onSelect={sendMessage} />
+            <SuggestedChips onSelect={sendMessage} disabled={isStreaming} />
           </div>
         </Hero>
       </main>
@@ -207,7 +284,7 @@ export function HomeChat({ contact, projects }: Props) {
 
   return (
     <main className="flex h-dvh flex-col bg-background text-foreground md:flex-row">
-      <PersistentMenu onSelect={sendMessage} disabled={isStreaming} recede={scrolledPastTop} />
+      {toolbar}
 
       {/* Reopens the details panel, which always carries the full project
           browser, so every project stays one click away once it's closed. */}
@@ -239,10 +316,18 @@ export function HomeChat({ contact, projects }: Props) {
       )}
 
       <div
-        className={`flex min-h-0 min-w-0 flex-1 flex-col transition-opacity duration-300 ease-out motion-reduce:transition-none ${
+        className={`relative flex min-h-0 min-w-0 flex-1 flex-col transition-opacity duration-300 ease-out motion-reduce:transition-none ${
           chatVisible ? "opacity-100" : "opacity-0"
         }`}
       >
+        {/* Messages fade out as they scroll up under the fixed toolbar,
+            rather than running straight through its buttons. */}
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-x-0 top-0 z-20 h-20 bg-gradient-to-b from-background via-background/85 to-transparent transition-opacity duration-200 motion-reduce:transition-none ${
+            scrolledPastTop ? "opacity-100" : "opacity-0"
+          }`}
+        />
         <div
           ref={scrollRef}
           id="chat-scroll"

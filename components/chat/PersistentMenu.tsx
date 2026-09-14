@@ -2,14 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { QUICK_LINKS } from "./questions";
+import { toolbarButtonClass } from "./toolbarButton";
 
 interface Props {
   onSelect: (question: string) => void;
   disabled?: boolean;
   /**
    * True once the conversation has been scrolled away from the top. The
-   * button is fixed-positioned directly over the top of the message
-   * column, so once real content scrolls underneath it, it recedes to a
+   * toolbar this button sits in is fixed-positioned directly over the top
+   * of the message column, so once real content scrolls underneath it, it
+   * recedes to a
    * small, translucent state rather than sitting fully opaque on top of
    * whatever text happens to scroll into that corner. Hover or focus (or
    * opening the menu) always restores it to full strength, so it never
@@ -57,7 +59,7 @@ export function PersistentMenu({ onSelect, disabled, recede }: Props) {
   }
 
   return (
-    <div ref={containerRef} className="fixed left-4 top-4 z-30">
+    <div ref={containerRef} className="relative">
       <button
         ref={buttonRef}
         type="button"
@@ -65,11 +67,7 @@ export function PersistentMenu({ onSelect, disabled, recede }: Props) {
         aria-expanded={open}
         aria-controls="quick-links-menu"
         aria-label="Quick links: Projects, Skills, Contact"
-        className={`flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-foreground backdrop-blur-sm transition-[color,border-color,opacity,transform] duration-200 ease-out hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none ${
-          recede && !open
-            ? "scale-90 opacity-40 hover:scale-100 hover:opacity-100 focus-visible:scale-100 focus-visible:opacity-100"
-            : "scale-100 opacity-100"
-        }`}
+        className={`${toolbarButtonClass({ recede: recede && !open })} w-10`}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
