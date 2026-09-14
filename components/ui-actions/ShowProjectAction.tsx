@@ -16,8 +16,8 @@ export function ShowProjectAction({ action }: Props) {
 
   if (!projectDetail) {
     return (
-      <div className="rounded-xl border border-border border-l-2 border-l-accent bg-surface px-4 py-3 text-sm">
-        <p className="font-mono text-xs uppercase tracking-wide text-accent">Project</p>
+      <div className="rounded-xl border border-border border-l-2 border-l-accent bg-surface px-5 py-4 text-base">
+        <p className="font-mono text-sm uppercase tracking-wide text-accent">Project</p>
         <p className="mt-1 text-muted">
           Couldn&rsquo;t find a project matching &ldquo;{action.id}&rdquo;.
         </p>
@@ -32,19 +32,19 @@ export function ShowProjectAction({ action }: Props) {
   const techTags = tags.filter((tag) => findSkillMark(tag));
 
   return (
-    <div className="rounded-xl border border-border border-l-2 border-l-accent bg-surface px-4 py-3 text-sm">
-      <p className="font-mono text-xs uppercase tracking-wide text-accent">Project</p>
-      <h3 className="mt-1 font-semibold text-foreground">{title}</h3>
+    <div className="rounded-xl border border-border border-l-2 border-l-accent bg-surface px-5 py-4 text-base">
+      <p className="font-mono text-sm uppercase tracking-wide text-accent">Project</p>
+      <h3 className="mt-1 text-lg font-semibold leading-snug text-foreground">{title}</h3>
 
       {techTags.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1.5">
+        <div className="mt-3 flex flex-wrap gap-2">
           {techTags.map((tag) => (
             <SkillBadge key={tag} name={tag} />
           ))}
         </div>
       )}
 
-      <div className="mt-2 space-y-2 text-muted">
+      <div className="mt-3 space-y-3 leading-relaxed text-muted">
         {paragraphs.map((paragraph, i) => (
           <p key={i} className="whitespace-pre-wrap">
             <InlineMarkdown text={paragraph} />

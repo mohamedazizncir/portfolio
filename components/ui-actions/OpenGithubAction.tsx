@@ -10,7 +10,7 @@ export function OpenGithubAction({ action }: Props) {
       href={action.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-block rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none"
+      className="inline-block rounded-full border border-border bg-surface px-5 py-2.5 text-base text-foreground transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none"
     >
       Open on GitHub →
     </a>

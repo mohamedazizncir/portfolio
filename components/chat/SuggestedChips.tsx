@@ -18,7 +18,7 @@ export function SuggestedChips({ onSelect, disabled }: Props) {
           type="button"
           onClick={() => onSelect(question)}
           disabled={disabled}
-          className="rounded-full border border-border bg-surface px-3 py-1.5 text-sm text-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
+          className="rounded-full border border-border bg-surface px-4 py-2 text-base text-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
         >
           {question}
         </button>

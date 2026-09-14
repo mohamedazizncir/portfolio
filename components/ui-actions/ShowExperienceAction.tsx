@@ -14,8 +14,8 @@ export function ShowExperienceAction({ action }: Props) {
 
   if (entries.length === 0) {
     return (
-      <div className="rounded-xl border border-border border-l-2 border-l-accent bg-surface px-4 py-3 text-sm">
-        <p className="font-mono text-xs uppercase tracking-wide text-accent">Experience</p>
+      <div className="rounded-xl border border-border border-l-2 border-l-accent bg-surface px-5 py-4 text-base">
+        <p className="font-mono text-sm uppercase tracking-wide text-accent">Experience</p>
         <p className="mt-1 text-muted">Nothing on file yet.</p>
       </div>
     );
@@ -26,16 +26,16 @@ export function ShowExperienceAction({ action }: Props) {
       {entries.map((entry) => (
         <div
           key={entry.id}
-          className="rounded-xl border border-border border-l-2 border-l-accent bg-surface px-4 py-3 text-sm"
+          className="rounded-xl border border-border border-l-2 border-l-accent bg-surface px-5 py-4 text-base"
         >
           <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-            <h3 className="font-semibold text-foreground">{entry.title}</h3>
+            <h3 className="text-lg font-semibold leading-snug text-foreground">{entry.title}</h3>
             {entry.dateLabel && (
-              <span className="shrink-0 font-mono text-xs text-muted">{entry.dateLabel}</span>
+              <span className="shrink-0 font-mono text-sm text-muted">{entry.dateLabel}</span>
             )}
           </div>
           {entry.body && (
-            <p className="mt-1.5 whitespace-pre-wrap text-muted">
+            <p className="mt-2 whitespace-pre-wrap leading-relaxed text-muted">
               <InlineMarkdown text={entry.body} />
             </p>
           )}

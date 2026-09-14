@@ -87,7 +87,7 @@ export function PersistentMenu({ onSelect, disabled, recede }: Props) {
       <div
         id="quick-links-menu"
         inert={!open}
-        className={`absolute left-0 top-full mt-2 w-44 origin-top-left overflow-hidden rounded-xl border border-border bg-surface shadow-lg transition-all duration-200 ease-out motion-reduce:transition-none ${
+        className={`absolute left-0 top-full mt-2 w-52 origin-top-left overflow-hidden rounded-xl border border-border bg-surface shadow-lg transition-all duration-200 ease-out motion-reduce:transition-none ${
           open ? "scale-100 opacity-100" : "scale-95 opacity-0"
         }`}
       >
@@ -98,7 +98,7 @@ export function PersistentMenu({ onSelect, disabled, recede }: Props) {
                 type="button"
                 onClick={() => handleSelect(item.question)}
                 disabled={disabled}
-                className="w-full rounded-lg px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-background hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
+                className="w-full rounded-lg px-3.5 py-2.5 text-left text-base text-foreground transition-colors hover:bg-background hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
               >
                 {item.label}
               </button>

@@ -118,7 +118,7 @@ export function AnswerGallery({ images, label }: Props) {
                 duration: reduceMotion ? 0 : 0.55,
                 ease: [0.16, 1, 0.3, 1],
               }}
-              className="w-[260px] shrink-0 snap-start sm:w-[340px]"
+              className="w-[16.25rem] shrink-0 snap-start sm:w-[21.25rem]"
             >
               <button
                 type="button"
@@ -134,7 +134,7 @@ export function AnswerGallery({ images, label }: Props) {
                     src={src}
                     alt=""
                     fill
-                    sizes="(max-width: 640px) 260px, 340px"
+                    sizes="(max-width: 640px) 260px, (max-width: 1920px) 400px, 460px"
                     className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                   />
                 </span>

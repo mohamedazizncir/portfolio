@@ -120,7 +120,7 @@ export function ContactLinks({ contact }: { contact: ContactDetail }) {
 
   return (
     <div className="w-full">
-      <p className="mb-3 font-mono text-xs uppercase tracking-wide text-muted">
+      <p className="mb-3 font-mono text-sm uppercase tracking-wide text-muted">
         Get in touch
       </p>
       <ul className="flex flex-wrap justify-center gap-2">
@@ -141,7 +141,7 @@ export function ContactLinks({ contact }: { contact: ContactDetail }) {
               {...(channel.external
                 ? { target: "_blank", rel: "noopener noreferrer" }
                 : {})}
-              className="group flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-muted transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent hover:text-accent focus-visible:-translate-y-0.5 focus-visible:border-accent focus-visible:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:focus-visible:translate-y-0"
+              className="group flex items-center gap-2 rounded-full border border-border bg-surface px-5 py-2.5 text-base text-muted transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent hover:text-accent focus-visible:-translate-y-0.5 focus-visible:border-accent focus-visible:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:focus-visible:translate-y-0"
             >
               {channel.icon}
               <span className="font-mono">{channel.label}</span>

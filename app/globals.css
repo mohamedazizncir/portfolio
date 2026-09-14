@@ -25,6 +25,20 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/*
+  Fluid root size. Nearly every size in the app (type, spacing, column and
+  panel widths) is in rem, so growing the root grows the whole layout in
+  proportion instead of leaving a phone-sized column in the middle of a
+  large monitor. 16px up to a 1280px-wide viewport, rising to 21px at
+  2560px, capped at 22px. rem inside the root's own font-size resolves
+  against the browser's default size, so a visitor's own font-size setting
+  still scales it; page zoom still works because it shrinks the vw.
+  Breakpoints are unaffected: media-query rem always means the default.
+*/
+html {
+  font-size: clamp(100%, 0.6875rem + 0.390625vw, 137.5%);
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

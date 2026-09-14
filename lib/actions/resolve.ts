@@ -74,6 +74,25 @@ async function loadProjectDetail(id: string): Promise<ProjectDetail | null> {
   return map.get(id) ?? null;
 }
 
+export interface ProjectEntry extends ProjectDetail {
+  id: string;
+}
+
+/**
+ * Every project in knowledge/projects/, alphabetical by title, for the
+ * details panel's project browser. Same source and same trust boundary as
+ * SHOW_PROJECT: read on the server from the knowledge files, handed to the
+ * client as props, never produced by the model.
+ */
+export async function loadProjectCatalogue(): Promise<ProjectEntry[]> {
+  const map = await loadAllProjectDetails();
+  const entries: ProjectEntry[] = [];
+  for (const [id, detail] of map) {
+    if (detail) entries.push({ id, ...detail });
+  }
+  return entries.sort((a, b) => a.title.localeCompare(b.title));
+}
+
 /**
  * Attaches real content to each validated action so the UI can render more
  * than a placeholder: the project's own description and images for

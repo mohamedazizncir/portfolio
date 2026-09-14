@@ -22,16 +22,16 @@ export function ShowTimelineAction({ action }: Props) {
 
   if (!timeline || (timeline.dated.length === 0 && timeline.undated.length === 0)) {
     return (
-      <div className="rounded-xl border border-border border-l-2 border-l-accent bg-surface px-4 py-3 text-sm">
-        <p className="font-mono text-xs uppercase tracking-wide text-accent">Timeline</p>
+      <div className="rounded-xl border border-border border-l-2 border-l-accent bg-surface px-5 py-4 text-base">
+        <p className="font-mono text-sm uppercase tracking-wide text-accent">Timeline</p>
         <p className="mt-1 text-muted">Nothing on file yet.</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-border bg-surface px-4 py-3 text-sm">
-      <p className="font-mono text-xs uppercase tracking-wide text-accent">Timeline</p>
+    <div className="rounded-xl border border-border bg-surface px-5 py-4 text-base">
+      <p className="font-mono text-sm uppercase tracking-wide text-accent">Timeline</p>
 
       <ol className="mt-3 flex flex-col gap-4 border-l border-border pl-4">
         {timeline.dated.map((entry, i) => (
@@ -44,13 +44,13 @@ export function ShowTimelineAction({ action }: Props) {
           >
             <span
               aria-hidden="true"
-              className="absolute -left-[1.09rem] top-1.5 h-2 w-2 rounded-full bg-accent"
+              className="absolute -left-[1.09rem] top-2 h-2 w-2 rounded-full bg-accent"
             />
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
               {entry.dateLabel && (
-                <span className="font-mono text-xs text-accent">{entry.dateLabel}</span>
+                <span className="font-mono text-sm text-accent">{entry.dateLabel}</span>
               )}
-              <span className="font-mono text-[0.65rem] uppercase tracking-wide text-muted">
+              <span className="font-mono text-xs uppercase tracking-wide text-muted">
                 {KIND_LABEL[entry.kind]}
               </span>
             </div>
@@ -61,7 +61,7 @@ export function ShowTimelineAction({ action }: Props) {
 
       {timeline.undated.length > 0 && (
         <div className="mt-4 border-t border-border pt-3">
-          <p className="font-mono text-[0.65rem] uppercase tracking-wide text-muted">
+          <p className="font-mono text-xs uppercase tracking-wide text-muted">
             Also worth knowing
           </p>
           <ul className="mt-2 flex flex-col gap-1.5">

@@ -37,10 +37,10 @@ export function AnswerSkills({ skills }: Props) {
               duration: reduceMotion ? 0 : 0.42,
               ease: [0.16, 1, 0.3, 1],
             }}
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 transition-colors duration-200 hover:border-accent motion-reduce:transition-none"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3.5 py-2 transition-colors duration-200 hover:border-accent motion-reduce:transition-none"
           >
-            {mark && <SkillMarkIcon mark={mark} className="h-4 w-4 shrink-0" />}
-            <span className="font-mono text-xs text-foreground">{mark?.name ?? name}</span>
+            {mark && <SkillMarkIcon mark={mark} className="h-5 w-5 shrink-0" />}
+            <span className="font-mono text-sm text-foreground">{mark?.name ?? name}</span>
           </motion.li>
         );
       })}

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import type { EnrichedAction } from "@/lib/actions/resolve";
+import type { EnrichedAction, ProjectEntry } from "@/lib/actions/resolve";
 import type { ContactDetail } from "@/lib/actions/contact";
 import { SuggestedChips } from "@/components/chat/SuggestedChips";
 import { ActionPanel } from "@/components/chat/ActionPanel";
@@ -26,12 +26,18 @@ type StreamEvent =
   | { type: "actions"; actions: EnrichedAction[] }
   | { type: "error"; message: string };
 
-export function HomeChat({ contact }: { contact: ContactDetail }) {
+interface Props {
+  contact: ContactDetail;
+  projects: ProjectEntry[];
+}
+
+export function HomeChat({ contact, projects }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [panelActions, setPanelActions] = useState<EnrichedAction[]>([]);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [chatVisible, setChatVisible] = useState(false);
   const [scrolledPastTop, setScrolledPastTop] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -129,6 +135,7 @@ export function HomeChat({ contact }: { contact: ContactDetail }) {
             appendToLastAssistant((msg) => ({ ...msg, actions: event.actions }));
             if (event.actions.length > 0) {
               setPanelActions(event.actions);
+              setSelectedProjectId(null);
               setPanelOpen(true);
             }
           } else if (event.type === "error") {
@@ -163,8 +170,8 @@ export function HomeChat({ contact }: { contact: ContactDetail }) {
               <label htmlFor="chat-input" className="sr-only">
                 Ask a question about Aziz
               </label>
-              <div className="flex items-center gap-2 rounded-full border border-border bg-surface px-5 py-3.5 transition-colors focus-within:border-accent">
-                <span className="font-mono text-accent select-none" aria-hidden="true">
+              <div className="flex items-center gap-3 rounded-full border border-border bg-surface px-6 py-4 transition-colors focus-within:border-accent">
+                <span className="font-mono text-lg text-accent select-none" aria-hidden="true">
                   ›
                 </span>
                 <input
@@ -173,7 +180,7 @@ export function HomeChat({ contact }: { contact: ContactDetail }) {
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask me anything about Aziz"
                   autoFocus
-                  className="w-full bg-transparent font-mono text-sm text-foreground outline-none placeholder:text-muted sm:text-base"
+                  className="w-full bg-transparent font-mono text-base text-foreground outline-none placeholder:text-muted sm:text-lg"
                 />
               </div>
             </form>
@@ -185,9 +192,52 @@ export function HomeChat({ contact }: { contact: ContactDetail }) {
     );
   }
 
+  // Shared by the mobile bottom sheet and the desktop column, which render
+  // the same state in two shapes.
+  const panelProps = {
+    actions: panelActions,
+    projects,
+    selectedProjectId,
+    onSelectProject: setSelectedProjectId,
+    onAsk: sendMessage,
+    askDisabled: isStreaming,
+    open: panelOpen,
+    onClose: () => setPanelOpen(false),
+  };
+
   return (
     <main className="flex h-dvh flex-col bg-background text-foreground md:flex-row">
       <PersistentMenu onSelect={sendMessage} disabled={isStreaming} recede={scrolledPastTop} />
+
+      {/* Reopens the details panel, which always carries the full project
+          browser, so every project stays one click away once it's closed. */}
+      {!panelOpen && (
+        <button
+          type="button"
+          onClick={() => setPanelOpen(true)}
+          aria-label="Browse all projects"
+          className={`fixed right-4 top-4 z-30 flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 font-mono text-sm text-foreground backdrop-blur-sm transition-[color,border-color,opacity] duration-200 ease-out hover:border-accent hover:text-accent hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none ${
+            scrolledPastTop ? "opacity-60" : "opacity-100"
+          }`}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            className="h-4 w-4"
+            aria-hidden="true"
+          >
+            <rect x="3" y="3" width="5.5" height="5.5" rx="1.25" />
+            <rect x="11.5" y="3" width="5.5" height="5.5" rx="1.25" />
+            <rect x="3" y="11.5" width="5.5" height="5.5" rx="1.25" />
+            <rect x="11.5" y="11.5" width="5.5" height="5.5" rx="1.25" />
+          </svg>
+          Projects
+        </button>
+      )}
+
       <div
         className={`flex min-h-0 min-w-0 flex-1 flex-col transition-opacity duration-300 ease-out motion-reduce:transition-none ${
           chatVisible ? "opacity-100" : "opacity-0"
@@ -196,9 +246,9 @@ export function HomeChat({ contact }: { contact: ContactDetail }) {
         <div
           ref={scrollRef}
           id="chat-scroll"
-          className="min-h-0 flex-1 overflow-y-auto px-4 pt-16 md:pt-6"
+          className="min-h-0 flex-1 overflow-y-auto px-4 pt-20"
         >
-          <div className="mx-auto flex max-w-2xl flex-col gap-6 pb-6">
+          <div className="mx-auto flex max-w-3xl flex-col gap-7 pb-8">
             {messages.map((m, i) => {
               const isLastAssistant =
                 m.role === "assistant" && i === messages.length - 1;
@@ -215,14 +265,14 @@ export function HomeChat({ contact }: { contact: ContactDetail }) {
                   <div
                     className={
                       m.role === "user"
-                        ? "max-w-[80%] rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 text-[1.0625rem] leading-relaxed text-foreground"
-                        : "max-w-[85%] whitespace-pre-wrap rounded-2xl border border-border bg-surface px-4 py-3 text-[1.0625rem] leading-relaxed"
+                        ? "max-w-[80%] rounded-2xl border border-accent/30 bg-accent/10 px-5 py-3.5 text-lg leading-relaxed text-foreground"
+                        : "max-w-[90%] whitespace-pre-wrap rounded-2xl border border-border bg-surface px-5 py-4 text-lg leading-relaxed"
                     }
                   >
                     {m.content}
                     {isLastAssistant && isStreaming && (
                       <span
-                        className="ml-0.5 inline-block h-4 w-2 translate-y-0.5 animate-pulse bg-accent motion-reduce:animate-none"
+                        className="ml-0.5 inline-block h-5 w-2 translate-y-1 animate-pulse bg-accent motion-reduce:animate-none"
                         aria-hidden="true"
                       />
                     )}
@@ -243,12 +293,7 @@ export function HomeChat({ contact }: { contact: ContactDetail }) {
           </div>
         </div>
 
-        <ActionPanel
-          actions={panelActions}
-          open={panelOpen}
-          onClose={() => setPanelOpen(false)}
-          className="md:hidden"
-        />
+        <ActionPanel {...panelProps} className="md:hidden" />
 
         <form
           onSubmit={handleSubmit}
@@ -257,8 +302,8 @@ export function HomeChat({ contact }: { contact: ContactDetail }) {
           <label htmlFor="chat-input-bar" className="sr-only">
             Ask a question about Aziz
           </label>
-          <div className="mx-auto flex max-w-2xl items-center gap-2 rounded-full border border-border bg-surface px-5 py-3 transition-colors focus-within:border-accent">
-            <span className="font-mono text-accent select-none" aria-hidden="true">
+          <div className="mx-auto flex max-w-3xl items-center gap-3 rounded-full border border-border bg-surface px-6 py-3.5 transition-colors focus-within:border-accent">
+            <span className="font-mono text-lg text-accent select-none" aria-hidden="true">
               ›
             </span>
             <input
@@ -268,18 +313,13 @@ export function HomeChat({ contact }: { contact: ContactDetail }) {
               placeholder="Ask me anything about Aziz"
               disabled={isStreaming}
               autoFocus
-              className="w-full bg-transparent font-mono text-sm text-foreground outline-none placeholder:text-muted disabled:opacity-50 sm:text-base"
+              className="w-full bg-transparent font-mono text-base text-foreground outline-none placeholder:text-muted disabled:opacity-50 sm:text-lg"
             />
           </div>
         </form>
       </div>
 
-      <ActionPanel
-        actions={panelActions}
-        open={panelOpen}
-        onClose={() => setPanelOpen(false)}
-        className="hidden md:flex"
-      />
+      <ActionPanel {...panelProps} className="hidden md:flex" />
     </main>
   );
 }
