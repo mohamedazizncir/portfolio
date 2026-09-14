@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import type { EnrichedAction } from "@/lib/actions/resolve";
 import { SuggestedChips } from "@/components/chat/SuggestedChips";
 import { ActionPanel } from "@/components/chat/ActionPanel";
@@ -31,7 +32,9 @@ export default function Home() {
   const [panelActions, setPanelActions] = useState<EnrichedAction[]>([]);
   const [panelOpen, setPanelOpen] = useState(false);
   const [chatVisible, setChatVisible] = useState(false);
+  const [scrolledPastTop, setScrolledPastTop] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
 
   const hasConversation = messages.length > 0;
 
@@ -47,6 +50,22 @@ export default function Home() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [messages]);
+
+  // The quick-links button sits fixed directly over the top of the message
+  // column, so once the visitor has scrolled even slightly, it recedes
+  // instead of sitting fully opaque over whatever text scrolled underneath
+  // it — see PersistentMenu's `recede` prop.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    function handleScroll() {
+      setScrolledPastTop((el?.scrollTop ?? 0) > 24);
+    }
+
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [hasConversation]);
 
   function appendToLastAssistant(update: (msg: Message) => Message) {
     setMessages((prev) => {
@@ -166,21 +185,28 @@ export default function Home() {
   }
 
   return (
-    <main className="flex h-dvh flex-col text-foreground md:flex-row">
-      <PersistentMenu onSelect={sendMessage} disabled={isStreaming} />
+    <main className="flex h-dvh flex-col bg-background text-foreground md:flex-row">
+      <PersistentMenu onSelect={sendMessage} disabled={isStreaming} recede={scrolledPastTop} />
       <div
-        className={`flex min-w-0 flex-1 flex-col transition-opacity duration-300 ease-out motion-reduce:transition-none ${
+        className={`flex min-h-0 min-w-0 flex-1 flex-col transition-opacity duration-300 ease-out motion-reduce:transition-none ${
           chatVisible ? "opacity-100" : "opacity-0"
         }`}
       >
-        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 pt-16 md:pt-6">
-          <div className="mx-auto flex max-w-2xl flex-col gap-4 pb-4">
+        <div
+          ref={scrollRef}
+          id="chat-scroll"
+          className="min-h-0 flex-1 overflow-y-auto px-4 pt-16 md:pt-6"
+        >
+          <div className="mx-auto flex max-w-2xl flex-col gap-6 pb-6">
             {messages.map((m, i) => {
               const isLastAssistant =
                 m.role === "assistant" && i === messages.length - 1;
               return (
-                <div
+                <motion.div
                   key={i}
+                  initial={{ opacity: 0, y: reduceMotion ? 0 : 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: reduceMotion ? 0 : 0.45, ease: [0.16, 1, 0.3, 1] }}
                   className={`flex flex-col gap-2 ${
                     m.role === "user" ? "items-end" : "items-start"
                   }`}
@@ -188,8 +214,8 @@ export default function Home() {
                   <div
                     className={
                       m.role === "user"
-                        ? "max-w-[80%] rounded-2xl bg-foreground px-4 py-2 text-background"
-                        : "max-w-[80%] whitespace-pre-wrap rounded-2xl bg-surface px-4 py-2"
+                        ? "max-w-[80%] rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 text-[1.0625rem] leading-relaxed text-foreground"
+                        : "max-w-[85%] whitespace-pre-wrap rounded-2xl border border-border bg-surface px-4 py-3 text-[1.0625rem] leading-relaxed"
                     }
                   >
                     {m.content}
@@ -210,7 +236,7 @@ export default function Home() {
                       <AnswerGallery images={m.images} />
                     </div>
                   )}
-                </div>
+                </motion.div>
               );
             })}
           </div>

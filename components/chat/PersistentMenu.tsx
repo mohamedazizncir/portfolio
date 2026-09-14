@@ -6,6 +6,18 @@ import { QUICK_LINKS } from "./questions";
 interface Props {
   onSelect: (question: string) => void;
   disabled?: boolean;
+  /**
+   * True once the conversation has been scrolled away from the top. The
+   * button is fixed-positioned directly over the top of the message
+   * column, so once real content scrolls underneath it, it recedes to a
+   * small, translucent state rather than sitting fully opaque on top of
+   * whatever text happens to scroll into that corner. Hover or focus (or
+   * opening the menu) always restores it to full strength, so it never
+   * gets harder to actually use — only less visually intrusive while the
+   * visitor is reading. Unused on the landing screen, where nothing
+   * scrolls underneath it.
+   */
+  recede?: boolean;
 }
 
 /**
@@ -13,7 +25,7 @@ interface Props {
  * onSelect (the same sendMessage() used for typed questions and suggested
  * chips), so there's one chat pipeline, not a separate content system.
  */
-export function PersistentMenu({ onSelect, disabled }: Props) {
+export function PersistentMenu({ onSelect, disabled, recede }: Props) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -53,7 +65,11 @@ export function PersistentMenu({ onSelect, disabled }: Props) {
         aria-expanded={open}
         aria-controls="quick-links-menu"
         aria-label="Quick links: Projects, Skills, Contact"
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-foreground transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none"
+        className={`flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-foreground backdrop-blur-sm transition-[color,border-color,opacity,transform] duration-200 ease-out hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none ${
+          recede && !open
+            ? "scale-90 opacity-40 hover:scale-100 hover:opacity-100 focus-visible:scale-100 focus-visible:opacity-100"
+            : "scale-100 opacity-100"
+        }`}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
