@@ -1,4 +1,4 @@
-import type { UIAction } from "@/lib/actions/schema";
+import type { EnrichedAction } from "@/lib/actions/resolve";
 import { ShowProjectsAction } from "./ShowProjectsAction";
 import { ShowProjectAction } from "./ShowProjectAction";
 import { HighlightSkillAction } from "./HighlightSkillAction";
@@ -11,9 +11,11 @@ import { ShowArchitectureAction } from "./ShowArchitectureAction";
 /**
  * Fixed switch over action.type — no eval, no dynamic component lookup.
  * Every action reaching this point has already been validated server-side
- * against lib/actions/schema.ts.
+ * against lib/actions/schema.ts, and any extra detail (project content,
+ * experience entries, timeline) was resolved server-side too, never
+ * supplied by the model — see lib/actions/resolve.ts.
  */
-export function UIActionRenderer({ action }: { action: UIAction }) {
+export function UIActionRenderer({ action }: { action: EnrichedAction }) {
   switch (action.type) {
     case "SHOW_PROJECTS":
       return <ShowProjectsAction action={action} />;
@@ -22,9 +24,9 @@ export function UIActionRenderer({ action }: { action: UIAction }) {
     case "HIGHLIGHT_SKILL":
       return <HighlightSkillAction action={action} />;
     case "SHOW_EXPERIENCE":
-      return <ShowExperienceAction />;
+      return <ShowExperienceAction action={action} />;
     case "SHOW_TIMELINE":
-      return <ShowTimelineAction />;
+      return <ShowTimelineAction action={action} />;
     case "OPEN_GITHUB":
       return <OpenGithubAction action={action} />;
     case "SHOW_CONTACT":

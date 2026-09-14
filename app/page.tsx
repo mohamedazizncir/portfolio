@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { UIAction } from "@/lib/actions/schema";
+import type { EnrichedAction } from "@/lib/actions/resolve";
 import { SuggestedChips } from "@/components/chat/SuggestedChips";
 import { ActionPanel } from "@/components/chat/ActionPanel";
 import { PersistentMenu } from "@/components/chat/PersistentMenu";
@@ -12,7 +12,7 @@ import { AnswerSkills } from "@/components/chat/AnswerSkills";
 interface Message {
   role: "user" | "assistant";
   content: string;
-  actions?: UIAction[];
+  actions?: EnrichedAction[];
   images?: string[];
   skills?: string[];
 }
@@ -21,14 +21,14 @@ type StreamEvent =
   | { type: "answer_delta"; text: string }
   | { type: "images"; images: string[] }
   | { type: "skills"; skills: string[] }
-  | { type: "actions"; actions: UIAction[] }
+  | { type: "actions"; actions: EnrichedAction[] }
   | { type: "error"; message: string };
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
-  const [panelActions, setPanelActions] = useState<UIAction[]>([]);
+  const [panelActions, setPanelActions] = useState<EnrichedAction[]>([]);
   const [panelOpen, setPanelOpen] = useState(false);
   const [chatVisible, setChatVisible] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -135,7 +135,7 @@ export default function Home() {
 
   if (!hasConversation) {
     return (
-      <main className="flex min-h-dvh flex-col items-center justify-center overflow-x-hidden bg-background px-4 py-12 text-foreground">
+      <main className="flex min-h-dvh flex-col items-center justify-center overflow-x-hidden px-4 py-12 text-foreground">
         <PersistentMenu onSelect={sendMessage} disabled={isStreaming} />
         <Hero>
           <div className="flex flex-col items-center gap-4">
@@ -166,7 +166,7 @@ export default function Home() {
   }
 
   return (
-    <main className="flex h-dvh flex-col bg-background text-foreground md:flex-row">
+    <main className="flex h-dvh flex-col text-foreground md:flex-row">
       <PersistentMenu onSelect={sendMessage} disabled={isStreaming} />
       <div
         className={`flex min-w-0 flex-1 flex-col transition-opacity duration-300 ease-out motion-reduce:transition-none ${

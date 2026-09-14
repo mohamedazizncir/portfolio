@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import type { UIAction } from "@/lib/actions/schema";
+import type { EnrichedAction } from "@/lib/actions/resolve";
 import { UIActionRenderer } from "@/components/ui-actions";
 
 interface Props {
-  actions: UIAction[];
+  actions: EnrichedAction[];
   open: boolean;
   onClose: () => void;
   className?: string;

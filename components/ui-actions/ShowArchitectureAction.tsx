@@ -1,4 +1,4 @@
-// Links to /architecture, which ships in Phase 5. Until then this 404s.
+// Links to the real /architecture page (app/architecture/page.tsx).
 export function ShowArchitectureAction() {
   return (
     <a

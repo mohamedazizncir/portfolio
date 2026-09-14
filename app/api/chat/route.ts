@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { getLLMProvider, type ChatMessage, type LLMProvider } from "@/lib/llm/provider";
 import { validateActions } from "@/lib/actions/schema";
+import { enrichActions, type EnrichedAction } from "@/lib/actions/resolve";
 import { retrieve, type RetrievedChunk } from "@/lib/rag/retrieve";
 import { collectResponseImages } from "@/lib/rag/images";
 import { detectSkills } from "@/lib/skills/catalogue";
@@ -141,7 +142,7 @@ type StreamEvent =
   | { type: "answer_delta"; text: string }
   | { type: "images"; images: string[] }
   | { type: "skills"; skills: string[] }
-  | { type: "actions"; actions: Awaited<ReturnType<typeof validateActions>> }
+  | { type: "actions"; actions: EnrichedAction[] }
   | { type: "error"; message: string };
 
 /** Streams one completion through the marker-split pipeline and sends events. */
@@ -192,9 +193,9 @@ async function streamAnswer(
       send({ type: "answer_delta", text: pending });
     }
 
-    const actions =
+    const validated =
       mode === "actions" ? await parseAndValidateActions(actionsBuffer) : [];
-    send({ type: "actions", actions });
+    send({ type: "actions", actions: await enrichActions(validated) });
   } catch (err) {
     console.error("Chat stream error:", err);
     send({ type: "error", message: "Failed to generate a response" });
