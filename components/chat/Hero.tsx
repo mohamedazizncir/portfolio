@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { SkillMarquee } from "@/components/skills/SkillMarquee";
+import { ContactLinks } from "@/components/chat/ContactLinks";
+import type { ContactDetail } from "@/lib/actions/contact";
 
 /**
  * The landing screen: who Aziz is, before a visitor has asked anything.
@@ -42,9 +44,10 @@ const COLUMN = "w-full max-w-2xl";
 
 interface Props {
   children: React.ReactNode;
+  contact: ContactDetail;
 }
 
-export function Hero({ children }: Props) {
+export function Hero({ children, contact }: Props) {
   return (
     <motion.div
       variants={container}
@@ -99,6 +102,10 @@ export function Hero({ children }: Props) {
 
       <motion.div variants={rise} className={COLUMN}>
         {children}
+      </motion.div>
+
+      <motion.div variants={rise} className={COLUMN}>
+        <ContactLinks contact={contact} />
       </motion.div>
 
       {/*

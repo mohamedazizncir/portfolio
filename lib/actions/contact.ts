@@ -3,6 +3,7 @@ import path from "node:path";
 
 export interface ContactDetail {
   email: string | null;
+  phone: string | null;
   github: string | null;
   linkedin: string | null;
 }
@@ -19,7 +20,7 @@ export async function loadContactDetail(): Promise<ContactDetail> {
   try {
     raw = await readFile(filePath, "utf-8");
   } catch {
-    return { email: null, github: null, linkedin: null };
+    return { email: null, phone: null, github: null, linkedin: null };
   }
 
   const get = (label: string): string | null => {
@@ -29,6 +30,9 @@ export async function loadContactDetail(): Promise<ContactDetail> {
 
   return {
     email: get("Email"),
+    // Absent from knowledge/contact.md until Aziz provides one; every
+    // consumer renders this channel only when it is non-null.
+    phone: get("Phone"),
     github: get("GitHub"),
     linkedin: get("LinkedIn"),
   };
